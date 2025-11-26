@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.stats.dto.HitDto;
 import ru.practicum.ewm.stats.dto.StatsDto;
+import ru.practicum.ewm.stats.dto.ViewStatsDto;
 import ru.practicum.ewm.stats.mapper.EndpointHitMapper;
 import ru.practicum.ewm.stats.model.EndpointHit;
 import ru.practicum.ewm.stats.repository.EndpointHitRepository;
@@ -29,7 +30,7 @@ public class StatsServiceImpl implements StatsService {
                                    List<String> uris,
                                    boolean unique) {
 
-        List<Object[]> result;
+        List<ViewStatsDto> result;
 
         if (unique) {
             result = repository.getUniqueStats(start, end, uris);
@@ -38,10 +39,10 @@ public class StatsServiceImpl implements StatsService {
         }
 
         return result.stream()
-                .map(r -> new StatsDto(
-                        (String) r[0],
-                        (String) r[1],
-                        ((Number) r[2]).longValue()
+                .map(v -> new StatsDto(
+                        v.getApp(),
+                        v.getUri(),
+                        v.getHits()
                 ))
                 .toList();
     }
