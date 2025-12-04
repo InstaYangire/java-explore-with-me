@@ -1,14 +1,12 @@
-FROM maven:3.9.6-eclipse-temurin-21 AS build
+FROM eclipse-temurin:21-jre-jammy
+
 WORKDIR /app
 
-COPY pom.xml .
-COPY src ./src
+VOLUME /tmp
 
-RUN mvn -q -e -DskipTests clean package
+EXPOSE 8080
 
-FROM eclipse-temurin:21-jre
-WORKDIR /app
+ARG JAR_FILE=target/*.jar
+COPY ${JAR_FILE} app.jar
 
-COPY --from=build /app/target/main-service-0.0.1-SNAPSHOT.jar app.jar
-
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -jar app.jar"]
