@@ -18,7 +18,8 @@ services:
       - ewm-net
 
   stats-server:
-    build: ./stats/stats-server
+    build:
+      context: ./stats/stats-server
     container_name: stats-server
     depends_on:
       - stats-db
@@ -44,11 +45,10 @@ services:
     networks:
       - ewm-net
 
-  main-service:
+  ewm-service:
     build:
-      context: .
-      dockerfile: main-service/Dockerfile
-    container_name: main-service
+      context: ./main-service
+    container_name: ewm-service
     depends_on:
       - main-db
       - stats-server
@@ -56,7 +56,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://main-db:5432/ewm
       SPRING_DATASOURCE_USERNAME: ewm_user
       SPRING_DATASOURCE_PASSWORD: ewm_pass
-      STATS_CLIENT_URL: http://stats-server:9090
+      STATS_SERVER_URL: http://stats-server:9090
     ports:
       - "8080:8080"
     networks:
