@@ -34,24 +34,25 @@ public class StatsController {
 
     @GetMapping("/stats")
     public List<StatsDto> getStats(
-            @RequestParam
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-            LocalDateTime start,
-
-            @RequestParam
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-            LocalDateTime end,
-
-            @RequestParam(required = false)
-            List<String> uris,
-
-            @RequestParam(defaultValue = "false")
-            boolean unique
+            @RequestParam String start,
+            @RequestParam String end,
+            @RequestParam(required = false) List<String> uris,
+            @RequestParam(defaultValue = "false") boolean unique
     ) {
-        if (end.isBefore(start)) {
+        LocalDateTime startTime;
+        LocalDateTime endTime;
+
+        try {
+            startTime = LocalDateTime.parse(start, FORMATTER);
+            endTime = LocalDateTime.parse(end, FORMATTER);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid date format");
+        }
+
+        if (endTime.isBefore(startTime)) {
             throw new IllegalArgumentException("End time must be after start time");
         }
 
-        return service.getStats(start, end, uris, unique);
+        return service.getStats(startTime, endTime, uris, unique);
     }
 }
