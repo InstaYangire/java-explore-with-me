@@ -1,13 +1,15 @@
-package ru.practicum.ewm.exception;
+package ru.practicum.ewm.stats.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
+@RestControllerAdvice(basePackages = "ru.practicum.ewm.stats")
 public class StatsErrorHandler {
 
     private static final DateTimeFormatter FORMATTER =
