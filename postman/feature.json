@@ -1,0 +1,254 @@
+{
+  "info": {
+    "name": "EWM Comments Feature",
+    "_postman_id": "c1c79d8f-5139-4dfa-9c1e-15fae955e88d",
+    "description": "Postman tests for comments feature in ExploreWithMe.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Comment",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/users/1/events/1/comments",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["users", "1", "events", "1", "comments"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"text\": \"Amazing event!\"}"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200 or 201\", function () {",
+              "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+              "});",
+              "",
+              "var json = pm.response.json();",
+              "",
+              "pm.test(\"Response has id\", function () {",
+              "    pm.expect(json).to.have.property(\"id\");",
+              "});",
+              "",
+              "pm.collectionVariables.set(\"commentId\", json.id);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Get Comments for Event",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/events/1/comments",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["events", "1", "comments"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200\", () => {",
+              "    pm.expect(pm.response.code).to.eql(200);",
+              "});",
+              "",
+              "pm.test(\"Body is array\", () => {",
+              "    pm.expect(pm.response.json()).to.be.an(\"array\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Validation: Empty Text",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/users/1/events/1/comments",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["users", "1", "events", "1", "comments"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"text\": \"\"}"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 400\", function () {",
+              "    pm.expect(pm.response.code).to.eql(400);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Delete Comment (Admin)",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "http://localhost:8080/admin/comments/{{commentId}}",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["admin", "comments", "{{commentId}}"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Deleted successfully\", () => {",
+              "    pm.expect(pm.response.code).to.be.oneOf([200, 204]);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Verify Comment Deleted",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/events/1/comments",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["events", "1", "comments"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var arr = pm.response.json();",
+              "var deletedId = pm.collectionVariables.get(\"commentId\");",
+              "",
+              "pm.test(\"Deleted comment is not in list\", function () {",
+              "    arr.forEach(c => pm.expect(c.id).not.eql(Number(deletedId)));",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Error: User Not Found",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/users/9999/events/1/comments",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["users", "9999", "events", "1", "comments"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"text\": \"test\"}"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"User not found\", () => {",
+              "    pm.expect(pm.response.code).to.eql(404);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Error: Event Not Found",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/users/1/events/9999/comments",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["users", "1", "events", "9999", "comments"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"text\": \"test\"}"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Event not found\", () => {",
+              "    pm.expect(pm.response.code).to.eql(404);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    }
+  ]
+}
